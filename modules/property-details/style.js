@@ -21,7 +21,7 @@ export const AccountHeadline = styled.h2`
 `;
 
 export const InfoText = styled.div`
-  ${({ theme }) => convertTypography(theme.typography["m"])}}
+  ${({ theme }) => convertTypography(theme.typography["m"])}
   color: ${({ theme }) => theme.colors.neutral[600]};
 `;
 
