@@ -3,8 +3,9 @@ import { add, format } from "date-fns";
 import React from "react";
 import { Button } from "../../components/button";
 import RowContainer from "../../components/row-container";
+import { formatToGBP } from "../../utils";
 import {
-  AccountHeadline, AccountLabel, AccountList, AccountListItem, AccountSection, InfoText, Inset
+  AccountHeadline, AccountLabel, AccountList, AccountListItem, AccountSection, HighlightedInfoText, InfoText, Inset
 } from "./style";
 
 
@@ -33,22 +34,26 @@ const account = {
   updateAfterDays: 30,
 };
 
-const Detail = ({}) => {
+const Detail = ({ }) => {
   let mortgage;
   const lastUpdate = new Date(account.lastUpdate);
   if (account.associatedMortgages.length) {
     mortgage = account.associatedMortgages[0];
   }
 
+  const originalPurchasePriceDate = new Date(account.originalPurchasePriceDate)
+  const yearsSincePurchase = new Date().getFullYear() - originalPurchasePriceDate.getFullYear();
+  const sincePurchase = account.recentValuation.amount - account.originalPurchasePrice;
+  const sincePurchasePercentage = sincePurchase / account.originalPurchasePrice * 100;
+  const annualAppreciation = sincePurchasePercentage / yearsSincePurchase
+  const sincePurchaseHighlightedText = `${formatToGBP(sincePurchase)} (${sincePurchasePercentage}%)`
+
   return (
     <Inset>
       <AccountSection>
         <AccountLabel>Estimated Value</AccountLabel>
         <AccountHeadline>
-          {new Intl.NumberFormat("en-GB", {
-            style: "currency",
-            currency: "GBP",
-          }).format(account.recentValuation.amount)}
+          {formatToGBP(account.recentValuation.amount, 2)}
         </AccountHeadline>
         <AccountList>
           <AccountListItem><InfoText>
@@ -72,6 +77,16 @@ const Detail = ({}) => {
           </AccountList>
         </RowContainer>
       </AccountSection>
+      <AccountSection>
+        <AccountLabel>Valuation change</AccountLabel>
+        <RowContainer>
+          <AccountList>
+            <AccountListItem><InfoText>Purchased for <strong>{formatToGBP(account.originalPurchasePrice)}</strong> in {format(originalPurchasePriceDate, "MMMM yyyy")}</InfoText></AccountListItem>
+            <AccountListItem><InfoText>Since purchase</InfoText> <HighlightedInfoText>{sincePurchaseHighlightedText}</HighlightedInfoText></AccountListItem>
+            <AccountListItem><InfoText>Annual appreciation</InfoText><HighlightedInfoText>{annualAppreciation}%</HighlightedInfoText></AccountListItem>
+          </AccountList>
+        </RowContainer >
+      </AccountSection >
       {mortgage && (
         <AccountSection>
           <AccountLabel>Mortgage</AccountLabel>
@@ -81,12 +96,7 @@ const Detail = ({}) => {
           >
             <AccountList>
               <AccountListItem><InfoText>
-                {new Intl.NumberFormat("en-GB", {
-                  style: "currency",
-                  currency: "GBP",
-                }).format(
-                  Math.abs(account.associatedMortgages[0].currentBalance)
-                )}
+                {formatToGBP(Math.abs(account.associatedMortgages[0].currentBalance), 2)}
               </InfoText></AccountListItem>
               <AccountListItem><InfoText>{account.associatedMortgages[0].name}</InfoText></AccountListItem>
             </AccountList>
@@ -99,7 +109,7 @@ const Detail = ({}) => {
       >
         Edit account
       </Button>
-    </Inset>
+    </Inset >
   );
 };
 
