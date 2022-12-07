@@ -5,3 +5,12 @@ export const formatToGBP = (amount, minimumFractionDigits = 0) => {
     minimumFractionDigits: minimumFractionDigits,
   }).format(amount)
 }
+
+export const convertTypography = (obj) => {
+  const newObj = {}
+  Object.entries(obj).forEach(([key, value]) => {
+    const newKey = key.replace(/([a-z]|(?=[A-Z]))([A-Z])/g, '$1-$2').toLowerCase()
+    newObj[newKey] = `${value};`
+  })
+  return newObj
+}
